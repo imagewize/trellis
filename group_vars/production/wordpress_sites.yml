@@ -24,7 +24,7 @@ wordpress_sites:
 
   laravel-app.com:
     # Merged from laravel_sites.yml
-    type: laravel
+    site_type: laravel
     site_hosts:
       - canonical: laravel-app.com
         redirects:
