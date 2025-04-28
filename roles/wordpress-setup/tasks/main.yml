@@ -24,13 +24,7 @@
   loop: "{{ wordpress_sites | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-
-- name: Create WordPress php-fpm configuration file
-  template:
-    src: php-fpm-pool-wordpress.conf.j2
-    dest: /etc/php/{{ php_version }}/fpm/pool.d/wordpress.conf
-    mode: '0644'
-  notify: reload php-fpm
+  when: item.value.site_type | default('wordpress') == 'wordpress'
 
 - name: Disable default PHP-FPM pool
   command: mv /etc/php/{{ php_version }}/fpm/pool.d/www.conf /etc/php/{{ php_version }}/fpm/pool.d/www.disabled
@@ -56,6 +50,7 @@
   loop: "{{ wordpress_sites | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  when: item.value.site_type | default('wordpress') == 'wordpress'
 
 - name: Setup WP Multisite system cron
   cron:
@@ -68,3 +63,4 @@
   loop: "{{ wordpress_sites | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  when: item.value.site_type | default('wordpress') == 'wordpress'

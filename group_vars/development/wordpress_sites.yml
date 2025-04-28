@@ -3,25 +3,25 @@
 # Define accompanying passwords/secrets in group_vars/development/vault.yml
 
 wordpress_sites:
-  example.com:
-    site_hosts:
-      - canonical: example.test
-        redirects:
-          - www.example.test
-    local_path: ../site # path targeting local Bedrock site directory (relative to Ansible root)
-    admin_email: admin@example.test
-    multisite:
-      enabled: false
-    ssl:
-      enabled: false
-      provider: self-signed
-    cache:
-      enabled: false
-    xmlrpc:
-      enabled: false
+  # example.com:
+  #   site_hosts:
+  #     - canonical: example.test
+  #       redirects:
+  #         - www.example.test
+  #   local_path: ../site # path targeting local Bedrock site directory (relative to Ansible root)
+  #   admin_email: admin@example.test
+  #   multisite:
+  #     enabled: false
+  #   ssl:
+  #     enabled: false
+  #     provider: self-signed
+  #   cache:
+  #     enabled: false
+  #   xmlrpc:
+  #     enabled: false
   laravel-app.com:
     # Merged from laravel_sites.yml
-    type: laravel # Specify that this is a Laravel site
+    site_type: laravel # Specify that this is a Laravel site
     site_hosts:
       - canonical: laravel-app.test
         redirects:
@@ -35,6 +35,8 @@ wordpress_sites:
       provider: self-signed
     cache:
       enabled: false
+    nginx_includes:
+      - roles/laravel-setup/templates/laravel-site.conf.j2
     env:
       APP_NAME: "Laravel App"
       APP_ENV: local
@@ -45,3 +47,13 @@ wordpress_sites:
       CACHE_DRIVER: file
       SESSION_DRIVER: file
       QUEUE_DRIVER: sync
+      DB_CONNECTION: mysql
+      # Use direct values instead of site_env references
+      db_name: laravel-app_com_development
+      db_user: laravel
+      db_password: '{{ vault_wordpress_sites["laravel-app.com"].env.db_password }}'
+      db_host: localhost
+      # Set Laravel variables explicitly
+      DB_DATABASE: laravel-app_com_development
+      DB_USERNAME: laravel
+      DB_HOST: localhost

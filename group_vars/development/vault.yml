@@ -4,11 +4,13 @@ vault_mysql_root_password: devpw
 # Variables to accompany `group_vars/development/wordpress_sites.yml`
 # Note: the site name (`example.com`) must match up with the site name in the above file.
 vault_wordpress_sites:
-  example.com:
-    admin_password: admin
-    env:
-      db_password: example_dbpassword
+  # example.com:
+  #   admin_password: admin
+  #   env:
+  #     db_password: example_dbpassword
   laravel-app.com: # Add this entry for the Laravel site
     env:
-      db_password: laravel_dbpassword # Define a DB password, even for development
+      db_password: '697521253QTrWVobjxb8fW38xtVXixnwg'
+      db_name: laravel-app_com_development
+      db_user: laravel
       # Add other sensitive Laravel env vars here if needed
