@@ -23,6 +23,9 @@
     label: "{{ item.key }}"
   when: item.value.site_type | default('wordpress') == 'laravel'
 
+- import_tasks: nginx.yml
+  tags: wordpress-setup-nginx
+
 - name: Setup Laravel scheduler
   cron:
     name: "{{ item.key }} Laravel scheduler"
