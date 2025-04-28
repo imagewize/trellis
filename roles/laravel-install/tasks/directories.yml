@@ -6,7 +6,7 @@
     group: "{{ web_group }}"
     mode: '0755'
     state: directory
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
 
@@ -17,7 +17,7 @@
     group: "{{ web_group }}"
     mode: '0755'
     state: directory
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
 
@@ -39,7 +39,7 @@
     group: "{{ web_group }}"
     mode: '0775'
     state: directory
-  loop: "{{ (wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list) | product(laravel_dirs) | list }}"
+  loop: "{{ (wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list) | product(laravel_dirs) | list }}"
   loop_control:
     label: "{{ item[0].key }} - {{ item[1] }}"
 
@@ -50,7 +50,7 @@
     group: "{{ web_group }}"
     state: directory
     recurse: yes
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
   when: chown_site_directory | default(false)

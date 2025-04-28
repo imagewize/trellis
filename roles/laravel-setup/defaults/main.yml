@@ -1,1 +1,2 @@
 nginx_laravel_site_conf: laravel-site.conf.j2
+nginx_ssl_path: "/etc/nginx/ssl"

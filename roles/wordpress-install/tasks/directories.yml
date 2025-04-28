@@ -6,7 +6,7 @@
     group: "{{ web_group }}"
     mode: '0755'
     state: directory
-  loop: "{{ wordpress_sites | dict2items }}"
+  loop: "{{ wordpress_sites | dict2items | rejectattr('value.site_type', 'defined') | list }}"
   loop_control:
     label: "{{ item.key }}"
 

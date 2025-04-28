@@ -83,7 +83,7 @@ server {
   include acme-challenge-location.conf;
   {% endif %}
 
-  return 301 {{ site_ssl_enabled ? 'https' : 'http' }}://{{ site_hosts_canonical }}$request_uri;
+  return 301 {% if site_ssl_enabled %}https{% else %}http{% endif %}://{{ site_hosts_canonical }}$request_uri;
 }
 {% endif %}
 

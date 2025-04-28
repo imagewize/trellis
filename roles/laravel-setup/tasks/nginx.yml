@@ -4,7 +4,7 @@
     src: "{{ item.value.ssl.cert }}"
     dest: "{{ nginx_ssl_path }}/{{ item.value.ssl.cert | basename }}"
     mode: '0640'
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
   when: ssl_enabled and item.value.ssl.cert is defined
@@ -15,7 +15,7 @@
     src: "{{ item.value.ssl.key }}"
     dest: "{{ nginx_ssl_path }}/{{ item.value.ssl.key | basename }}"
     mode: '0600'
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
   when: ssl_enabled and item.value.ssl.key is defined
@@ -23,12 +23,27 @@
 
 - import_tasks: "{{ playbook_dir }}/roles/common/tasks/disable_challenge_sites.yml"
 
+- name: Set Laravel Nginx template variables
+  set_fact:
+    site_uses_ssl: "{{ item.value.ssl is defined and item.value.ssl.enabled | default(false) }}"
+    site_ssl_enabled: "{{ item.value.ssl is defined and item.value.ssl.enabled | default(false) }}"
+    site_hosts_canonical: "{{ item.value.site_hosts | map(attribute='canonical') | list | first }}"
+    site_hosts_redirects: "{{ item.value.site_hosts | selectattr('redirects', 'defined') | sum(attribute='redirects', start=[]) | list }}"
+    site_redirects_to_https: "{{ item.value.ssl is defined and item.value.ssl.enabled | default(false) and item.value.ssl.redirect_http_to_https | default(true) }}"
+    ssl_stapling_enabled: "{{ item.value.ssl is defined and item.value.ssl.enabled | default(false) and item.value.ssl.stapling_enabled | default(true) }}"
+    site_uses_letsencrypt: "{{ item.value.ssl is defined and item.value.ssl.enabled | default(false) and item.value.ssl.provider | default('manual') == 'letsencrypt' }}"
+    ssl_cert: "{% if item.value.ssl is defined and item.value.ssl.cert is defined %}{{ nginx_ssl_path }}/{{ item.value.ssl.cert | basename }}{% else %}{{ nginx_ssl_path }}/dummy.crt{% endif %}"
+    ssl_key: "{% if item.value.ssl is defined and item.value.ssl.key is defined %}{{ nginx_ssl_path }}/{{ item.value.ssl.key | basename }}{% else %}{{ nginx_ssl_path }}/dummy.key{% endif %}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
+  loop_control:
+    label: "{{ item.key }}"
+
 - name: Create Laravel configuration for Nginx
   template:
     src: "{{ item.value.nginx_laravel_site_conf | default(nginx_laravel_site_conf) }}"
     dest: "{{ nginx_path }}/sites-available/{{ item.key }}.conf"
     mode: '0644'
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
   notify: reload nginx
@@ -41,7 +56,7 @@
     owner: root
     group: root
     state: link
-  loop: "{{ wordpress_sites | dict2items | selectattr('value.type', 'defined') | selectattr('value.type', 'equalto', 'laravel') | list }}"
+  loop: "{{ wordpress_sites | dict2items | selectattr('value.site_type', 'defined') | selectattr('value.site_type', 'equalto', 'laravel') | list }}"
   loop_control:
     label: "{{ item.key }}"
   notify: reload nginx
