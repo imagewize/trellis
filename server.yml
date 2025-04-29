@@ -31,3 +31,4 @@
     - { role: letsencrypt, tags: [letsencrypt], when: sites_using_letsencrypt | count }
     - { role: wordpress-setup, tags: [wordpress, wordpress-setup, letsencrypt] }
     - { role: laravel-setup, tags: [laravel, laravel-setup, letsencrypt] }
+    - { role: laravel-install, tags: [laravel, laravel-install] }
