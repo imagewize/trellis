@@ -15,6 +15,7 @@
   loop_control:
     label: "{{ item.key }}"
   when: item.value.site_type | default('wordpress') == 'laravel'
+  tags: composer
 
 - name: Generate application key
   command: php artisan key:generate --force
@@ -25,6 +26,7 @@
   loop_control:
     label: "{{ item.key }}"
   when: item.value.site_install | default(true) and item.value.site_type | default('wordpress') == 'laravel'
+  tags: laravel-key
 
 - name: Run database migrations
   command: php artisan migrate --force
