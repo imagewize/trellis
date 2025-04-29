@@ -57,7 +57,7 @@
   loop: "{{ wordpress_sites | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: item.value.site_install | default(true)
+  when: item.value.site_install | default(true) and item.value.site_type | default('wordpress') == 'wordpress'
   changed_when: "'WordPress is already installed.' not in wp_install.stdout and 'The network already exists.' not in wp_install.stdout"
 
 - name: Setup Permalink Structure
@@ -65,7 +65,7 @@
   args:
     chdir: "{{ www_root }}/{{ item.item.key }}/{{ item.item.value.current_path | default('current') }}/"
   loop: "{{ wp_install.results }}"
-  when: item is changed
+  when: item is changed and item.item.value.site_type | default('wordpress') == 'wordpress'
 
 - name: Update WP Multisite Home URL
   command: wp option update home {{ site_env.wp_home }} --allow-root
@@ -74,4 +74,4 @@
   loop: "{{ wordpress_sites | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: item.value.site_install | default(true) and item.value.multisite.enabled | default(false)
+  when: item.value.site_install | default(true) and item.value.multisite.enabled | default(false) and item.value.site_type | default('wordpress') == 'wordpress'

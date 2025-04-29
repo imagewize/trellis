@@ -1,0 +1,40 @@
+---
+- name: Create Laravel web root (public directory)
+  file:
+    path: "{{ www_root }}/{{ item.key }}/public"
+    owner: "{{ web_user }}"
+    group: "{{ web_group }}"
+    mode: '0755'
+    state: directory
+  loop: "{{ wordpress_sites | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: item.value.site_type | default('wordpress') == 'laravel'
+
+- name: Create logs folder for Laravel sites
+  file:
+    path: "{{ www_root }}/{{ item.key }}/logs"
+    owner: "{{ web_user }}"
+    group: "{{ web_group }}"
+    mode: '0755'
+    state: directory
+  loop: "{{ wordpress_sites | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: item.value.site_type | default('wordpress') == 'laravel'
+
+- import_tasks: nginx.yml
+  tags: wordpress-setup-nginx
+
+- name: Setup Laravel scheduler
+  cron:
+    name: "{{ item.key }} Laravel scheduler"
+    minute: "*"
+    user: "{{ web_user }}"
+    job: "cd {{ www_root }}/{{ item.key }}/{{ item.value.current_path | default('current') }} && php artisan schedule:run >> /dev/null 2>&1"
+    cron_file: "laravel-{{ item.key | replace('.', '_') }}"
+    state: "{{ cron_enabled | ternary('present', 'absent') }}"
+  loop: "{{ wordpress_sites | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: item.value.site_type | default('wordpress') == 'laravel'

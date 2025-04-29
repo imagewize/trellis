@@ -4,3 +4,10 @@
 # database_app: sequel-ace
 # open:
 #   admin: "https://mysite.com/wp/wp-admin"
+
+# Laravel integration
+site:
+  types:
+    laravel:
+      create_command: "laravel new {{ project }}"
+      path: "{{ project }}"
